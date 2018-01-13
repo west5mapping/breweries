@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WebMap 101</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <style>
+            #header {
+                height: 75px;
+                background-color: seagreen;
+            }
+            #mapdiv {
+                height: 850px;
+                background-color: salmon;
+            }
+            #side_panel {
+                height: 850px;
+                background-color: beige;
+            }
+            #footer {
+                height: 75px;
+                background-color: darkgray;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header" class="col-md-12">
+            <h1 class="text-center">Calgary Alberta</h1>
+        </div>
+        <div id="side_panel" class="col-md-3">
+            <h1 class="text-center">Attractions</h1>
+            <button id="zoomToZoo" class="form-control btn-primary">Calgary Zoo</button>
+            <button id="zoomToTower" class="form-control btn-primary">Calgary Tower</button>
+        </div>
+        <div id="mapdiv" class="col-md-9"></div>
+        <div id="footer" class="col-md-12">
+            <h4 id ="map_coords" class="text-center">Latitude: 51 Longitude: -114 Zoom level: 10</h4>
+            <h4 class="text-center">&copy;2017 <a href="http://www.west5mapping.com">West 5 Mapping Inc.</a></h4>
+        </div>
+        
+        <script>
+            var mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+            var accessToken = 'pk.eyJ1Ijoid2VzdDVtYXBwaW5nIiwiYSI6ImNpeW41ZXNiOTAwMW4zdXM3cGZteDkyOTYifQ.xNuwux36GPTjPkOIiFkF3Q';
+            var mymap = L.map('mapdiv');
+            mymap.setView([51, -114], 10);
+            
+            var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
+            mymap.addLayer(backgroundLayer);
+            
+            var zooMarker = L.marker([51.04578, -114.0237]).addTo(mymap).bindPopup("<h3 class='text-center'>Calgary Zoo</h3><a href='https://www.calgaryzoo.com' target='blank'><img src='img/calgaryzoo.png' width='200px'></a>");
+            
+            var towerMarker = L.marker([51.04429, -114.06308]).addTo(mymap).bindPopup("<h3 class='text-center'>Calgary Tower</h3><a href='http://www.calgarytower.com/' target='blank'><img src='img/calgarytower.png' width='200px'></a>");
+            
+            $("#zoomToZoo").on("click",function(){
+                mymap.setView([51.04578, -114.0237], 17);
+            });
+            
+            $("#zoomToTower").on("click",function(){
+                mymap.setView([51.04429, -114.06308], 17);
+            });
+            
+            mymap.on('mousemove',function(e){
+                     var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
+                     $("#map_coords").html(coords);
+                     });
+        </script>
+    </body>
+</html>

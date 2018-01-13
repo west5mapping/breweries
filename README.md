@@ -1,2 +1,2 @@
 # breweries
-leaflet yyc breweries webmap
+West 5 Mapping Breweries Map
