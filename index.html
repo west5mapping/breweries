@@ -4,25 +4,36 @@
         <meta charset="UTF-8">
         <title>Breweries</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="resources/leaflet.ajax.min.js"></script>
         <style>
+            html, body, #container {
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+            body {
+              padding-top: 70px;
+            }
             #header {
-                height: 5vh;
                 background-color: seagreen;
             }
             #mapdiv {
-                height: 90vh;
-                background-color: salmon;
+                width: auto;
+                height: 100%;
             }
-            #side_panel {
-                height: 90vh;
+            #sidebar {
+                display: block;
+                width: 250px;
+                height: 100%;
+                max-width: 100%;
+                float: left;
                 background-color: beige;
             }
             #footer {
-                height: 5vh;
                 background-color: darkgray;
             }
             .brewery {    
@@ -31,14 +42,16 @@
         </style>
     </head>
     <body>
-        <div id="header" class="col-md-12">
+        <div id="header" class="navbar navbar-header navbar-fixed-top">
             <h1 class="text-center"><strong>Calgary Craft Beer</strong></h1>
         </div>
-        <div id="side_panel" class="col-md-2">
-            <h1 class="text-center">Breweries</h1>
+        <div id="container">
+            <div id="sidebar" class="col-md-2">                  
+                <h2 class="text-center">Breweries</h2>                   
+            </div>
+            <div id="mapdiv"></div>
         </div>
-        <div id="mapdiv" class="col-md-10"></div>
-        <div id="footer" class="col-md-12">
+        <div id="footer" class="navbar navbar-header navbar-fixed-bottom">
             <h4 id ="map_coords" class="text-center">Latitude: 51 Longitude: -114 Zoom level: 10</h4>
             <h4 class="text-center">&copy;2017 <a href="http://www.west5mapping.com">West 5 Mapping Inc.</a></h4>
         </div>
@@ -52,12 +65,13 @@
             var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
             mymap.addLayer(backgroundLayer);
             
+            var geojson = 'data/breweries.geojson';
             
-            var geojsonLayer = new L.GeoJSON.AJAX('data/breweries.geojson', {pointToLayer: function(feature, latlng){
+            var geojsonLayer = new L.GeoJSON.AJAX(geojson, {pointToLayer: function(feature, latlng){
                 var but = "<button id='zoomTo"+feature.properties.Name.replace(/ /g, '');
                 but += "' class ='form-control btn btn-primary brewery'>";
                 but += feature.properties.Name+"</button>";
-                $("#side_panel").append(but);
+                $("#sidebar").append(but);
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
                     mymap.setView([latlng.lat, latlng.lng], 17);
                 });
@@ -65,8 +79,13 @@
                 str += "<a href='"+feature.properties.Web+"' target ='blank'>";
                 str += "<img src='img/"+feature.properties.Image+"' class='center-block' width='200px'>";
                 str += "</a>";
-                return L.marker(latlng).bindPopup(str);
+                str += "<p class='text-center'>"+feature.properties.Address+"</p>";
+                return L.marker(latlng,{
+                                title: feature.properties.Name,
+                                riseOnHover: true
+                                }).bindPopup(str);
             }});
+            
             geojsonLayer.addTo(mymap);
             
             mymap.on('mousemove',function(e){
