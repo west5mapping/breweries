@@ -16,7 +16,8 @@
                 overflow: hidden;
             }
             body {
-              padding-top: 70px;
+              padding-top: 69px;
+              padding-bottom: 69px;
             }
             #header {
                 background-color: seagreen;
@@ -32,6 +33,7 @@
                 max-width: 100%;
                 float: left;
                 background-color: beige;
+                overflow-y: auto;
             }
             #footer {
                 background-color: darkgray;
@@ -74,16 +76,18 @@
                 $("#sidebar").append(but);
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
                     mymap.setView([latlng.lat, latlng.lng], 17);
+                    marker.openPopup();
                 });
                 var str = "<h3 class='text-center'><strong>"+feature.properties.Name+"</strong></h3>";
                 str += "<a href='"+feature.properties.Web+"' target ='blank'>";
                 str += "<img src='img/"+feature.properties.Image+"' class='center-block' width='200px'>";
                 str += "</a>";
                 str += "<p class='text-center'>"+feature.properties.Address+"</p>";
-                return L.marker(latlng,{
+                var marker = new L.Marker(latlng,{
                                 title: feature.properties.Name,
                                 riseOnHover: true
                                 }).bindPopup(str);
+                return marker;
             }});
             
             geojsonLayer.addTo(mymap);
