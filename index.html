@@ -6,7 +6,9 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+        <link rel="stylesheet" href="css/L.Control.ZoomBar.css"/>
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+        <script src="resources/L.Control.ZoomBar.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="resources/leaflet.ajax.min.js"></script>
         <style>
@@ -16,8 +18,15 @@
                 overflow: hidden;
             }
             body {
-              padding-top: 69px;
-              padding-bottom: 69px;
+                padding-top: 69px;
+                padding-bottom: 69px;
+            }
+            h1 {
+                font-family: Verdana, Arial, sans-serif;
+                font-weight: bold;
+            }
+            h2, h4 {
+                font-family: Verdana, Arial, sans-serif;
             }
             #header {
                 background-color: seagreen;
@@ -27,7 +36,6 @@
                 height: 100%;
             }
             #sidebar {
-                display: block;
                 width: 250px;
                 height: 100%;
                 max-width: 100%;
@@ -45,11 +53,11 @@
     </head>
     <body>
         <div id="header" class="navbar navbar-header navbar-fixed-top">
-            <h1 class="text-center"><strong>Calgary Craft Beer</strong></h1>
+            <h1 class="text-center">Calgary Craft Beer</h1>
         </div>
         <div id="container">
             <div id="sidebar" class="col-md-2">                  
-                <h2 class="text-center">Breweries</h2>                   
+                <h2 class="text-center">Breweries</h2>
             </div>
             <div id="mapdiv"></div>
         </div>
@@ -61,7 +69,9 @@
         <script>
             var mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
             var accessToken = 'pk.eyJ1Ijoid2VzdDVtYXBwaW5nIiwiYSI6ImNpeW41ZXNiOTAwMW4zdXM3cGZteDkyOTYifQ.xNuwux36GPTjPkOIiFkF3Q';
-            var mymap = L.map('mapdiv');
+            var mymap = L.map('mapdiv',{
+                zoomControl: false
+            });
             mymap.setView([51, -114], 11);
             
             var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
@@ -91,6 +101,8 @@
             }});
             
             geojsonLayer.addTo(mymap);
+            
+            var zoom_bar = new L.Control.ZoomBar({position: 'topright'}).addTo(mymap);
             
             mymap.on('mousemove',function(e){
                      var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
