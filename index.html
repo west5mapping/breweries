@@ -25,7 +25,7 @@
                 font-family: Verdana, Arial, sans-serif;
                 font-weight: bold;
             }
-            h2, h4 {
+            h2, h4, h5 {
                 font-family: Verdana, Arial, sans-serif;
             }
             #header {
@@ -49,6 +49,10 @@
             .brewery {    
                 margin-bottom: 5px;
             }
+            .locationbtn {    
+                margin-top: 10px;
+            }
+
         </style>
     </head>
     <body>
@@ -56,7 +60,8 @@
             <h1 class="text-center">Calgary Craft Beer</h1>
         </div>
         <div id="container">
-            <div id="sidebar" class="col-md-2">                  
+            <div id="sidebar" class="col-md-2">
+                <button id="locationbtn" class="form-control btn btn-danger locationbtn">Show My Location</button>
                 <h2 class="text-center">Breweries</h2>
             </div>
             <div id="mapdiv"></div>
@@ -68,14 +73,10 @@
         
         <script>
             var mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+            
             var accessToken = 'pk.eyJ1Ijoid2VzdDVtYXBwaW5nIiwiYSI6ImNpeW41ZXNiOTAwMW4zdXM3cGZteDkyOTYifQ.xNuwux36GPTjPkOIiFkF3Q';
-            var mymap = L.map('mapdiv',{
-                zoomControl: false
-            });
-            mymap.setView([51, -114], 11);
             
             var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
-            mymap.addLayer(backgroundLayer);
             
             var geojson = 'data/breweries.geojson';
             
@@ -87,6 +88,13 @@
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
                     mymap.setView([latlng.lat, latlng.lng], 17);
                     marker.openPopup();
+                    marker.unbindTooltip();
+                });
+                $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseenter(function(){
+                    marker.bindTooltip("<h5><strong>"+feature.properties.Name+"</strong></h5>").openTooltip();
+                });
+                $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseleave(function(){
+                    marker.unbindTooltip();
                 });
                 var str = "<h3 class='text-center'><strong>"+feature.properties.Name+"</strong></h3>";
                 str += "<a href='"+feature.properties.Web+"' target ='blank'>";
@@ -100,14 +108,35 @@
                 return marker;
             }});
             
+            var mymap = L.map('mapdiv',{center:[51, -114], zoom:11, zoomControl:false});
+            
+            mymap.addLayer(backgroundLayer);
+            
             geojsonLayer.addTo(mymap);
             
-            var zoom_bar = new L.Control.ZoomBar({position: 'topright'}).addTo(mymap);
-            
+            var zoom_bar = new L.Control.ZoomBar({position: 'topleft'}).addTo(mymap);
             mymap.on('mousemove',function(e){
                      var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
                      $("#map_coords").html(coords);
                      });
+            
+            $("#locationbtn").click(function(){
+                mymap.locate();
+                mymap.on('locationfound',function(e){
+                         if (locationMarker){
+                             locationMarker.remove();
+                         }
+                         var locationMarker = L.circle(e.latlng,{color: "red", radius: e.accuracy/2}).addTo(mymap);
+                         locationMarker.on("click",function(){
+                            mymap.removeLayer(locationMarker); 
+                         });
+                         mymap.fitBounds(locationMarker.getBounds());
+                         });
+                mymap.on('locationerror',function(e){
+                    alert(e.message);
+                })
+            });
+            
         </script>
     </body>
 </html>
