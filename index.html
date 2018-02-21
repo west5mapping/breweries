@@ -21,19 +21,12 @@
                 width: 100%;
                 overflow: hidden;
             }
-            body {
-                padding-top: 69px;
-                padding-bottom: 69px;
-            }
             h1 {
-                font-family: Verdana, Arial, sans-serif;
+                font-family: Baskerville, "Baskerville Old Face", "Goudy Old Style", Garamond, "Times New Roman", serif;
                 font-weight: bold;
             }
-            h2, h4, h5 {
-                font-family: Verdana, Arial, sans-serif;
-            }
-            #header {
-                background-color: seagreen;
+            h5 {
+                font-family: Tahoma, Verdana, Segoe, sans-serif;
             }
             #mapdiv {
                 width: 100%;
@@ -43,30 +36,21 @@
                 background-color: beige;
                 overflow-y: auto;
             }
-            #footer {
-                background-color: darkgray;
-            }
             .brewery {    
                 margin-bottom: 5px;
                 height: auto;
                 white-space: normal;
+                font-family: Tahoma, Verdana, Segoe, sans-serif;
             }
 
         </style>
     </head>
     <body>
-        <div id="header" class="navbar navbar-header navbar-fixed-top">
-            <h1 class="text-center">Calgary Craft Beer</h1>
-        </div>
         <div id="container">
             <div id="sidebar">
-                <h2 class="text-center">Breweries</h2>
+                <h1 class="text-center">Calgary Craft Breweries</h1>
             </div>
             <div id="mapdiv"></div>
-        </div>
-        <div id="footer" class="navbar navbar-header navbar-fixed-bottom">
-            <h4 id ="map_coords" class="text-center">Latitude: 51 Longitude: -114 Zoom level: 10</h4>
-            <h4 class="text-center">&copy;2017 <a href="http://www.west5mapping.com">West 5 Mapping Inc.</a></h4>
         </div>
         
         <script>
@@ -84,7 +68,8 @@
                 but += feature.properties.Name+"</button>";
                 $("#sidebar").append(but);
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
-                    mymap.setView([latlng.lat, latlng.lng], 17);
+                    var longoffset = latlng.lng - 0.001;
+                    mymap.setView([latlng.lat, longoffset], 17);
                     marker.openPopup();
                     marker.unbindTooltip();
                 });
@@ -108,6 +93,8 @@
             
             var mymap = L.map('mapdiv',{center:[51, -114], zoom:11, zoomControl:false});
             
+            mymap.attributionControl.addAttribution(" Map Produced By: <a href='http://www.west5mapping.com' target='_blank'>West 5 Mapping Inc.</a> &copy;2017");
+            
             mymap.addLayer(backgroundLayer);
             
             geojsonLayer.addTo(mymap);
@@ -117,7 +104,7 @@
             mymap.on('mousemove',function(e){
                 var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
                 $("#map_coords").html(coords);
-                });
+            });
             
             var locationMarker;
             
@@ -130,25 +117,25 @@
                     mymap.removeLayer(locationMarker); 
                 });
                 mymap.fitBounds(locationMarker.getBounds());
-                });
+            });
             
             mymap.on('locationerror',function(e){
                 alert(e.message);
-                });
+            });
             
             var ctlLocationbtn = L.easyButton('glyphicon-screenshot',function(){
                 mymap.locate();
-                },'Show My Location').addTo(mymap);
+            },'Show My Location').addTo(mymap);
             
             var sidebar = L.control.sidebar('sidebar').addTo(mymap);
             
             setTimeout(function(){
                 sidebar.show();
-                }, 500);
+            }, 500);
             
             var ctlSidebarbtn = L.easyButton('glyphicon-menu-hamburger',function(){
                 sidebar.toggle();
-                },'Toggle Brewery List').addTo(mymap);
+            },'Toggle Brewery List').addTo(mymap);
             
         </script>
     </body>
