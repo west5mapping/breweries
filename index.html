@@ -6,11 +6,15 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-        <link rel="stylesheet" href="css/L.Control.ZoomBar.css"/>
+        <link rel="stylesheet" href="src/plugins/L.Control.ZoomBar.css"/>
+        <link rel="stylesheet" href="src/plugins/easy-button.css"/>
+        <link rel="stylesheet" href="src/plugins/L.Control.Sidebar.css"/>
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-        <script src="resources/L.Control.ZoomBar.js"></script>
+        <script src="src/plugins/L.Control.ZoomBar.js"></script>
+        <script src="src/plugins/easy-button.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-        <script src="resources/leaflet.ajax.min.js"></script>
+        <script src="src/leaflet.ajax.min.js"></script>
+        <script src="src/plugins/L.Control.Sidebar.js"></script>
         <style>
             html, body, #container {
                 height: 100%;
@@ -32,14 +36,10 @@
                 background-color: seagreen;
             }
             #mapdiv {
-                width: auto;
+                width: 100%;
                 height: 100%;
             }
             #sidebar {
-                width: 250px;
-                height: 100%;
-                max-width: 100%;
-                float: left;
                 background-color: beige;
                 overflow-y: auto;
             }
@@ -48,9 +48,8 @@
             }
             .brewery {    
                 margin-bottom: 5px;
-            }
-            .locationbtn {    
-                margin-top: 10px;
+                height: auto;
+                white-space: normal;
             }
 
         </style>
@@ -60,8 +59,7 @@
             <h1 class="text-center">Calgary Craft Beer</h1>
         </div>
         <div id="container">
-            <div id="sidebar" class="col-md-2">
-                <button id="locationbtn" class="form-control btn btn-danger locationbtn">Show My Location</button>
+            <div id="sidebar">
                 <h2 class="text-center">Breweries</h2>
             </div>
             <div id="mapdiv"></div>
@@ -82,7 +80,7 @@
             
             var geojsonLayer = new L.GeoJSON.AJAX(geojson, {pointToLayer: function(feature, latlng){
                 var but = "<button id='zoomTo"+feature.properties.Name.replace(/ /g, '');
-                but += "' class ='form-control btn btn-primary brewery'>";
+                but += "' class ='form-control btn btn-primary btn-lg brewery'>";
                 but += feature.properties.Name+"</button>";
                 $("#sidebar").append(but);
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
@@ -106,7 +104,7 @@
                                 riseOnHover: true
                                 }).bindPopup(str);
                 return marker;
-            }});
+                }});
             
             var mymap = L.map('mapdiv',{center:[51, -114], zoom:11, zoomControl:false});
             
@@ -115,27 +113,42 @@
             geojsonLayer.addTo(mymap);
             
             var zoom_bar = new L.Control.ZoomBar({position: 'topleft'}).addTo(mymap);
-            mymap.on('mousemove',function(e){
-                     var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
-                     $("#map_coords").html(coords);
-                     });
             
-            $("#locationbtn").click(function(){
+            mymap.on('mousemove',function(e){
+                var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
+                $("#map_coords").html(coords);
+                });
+            
+            var locationMarker;
+            
+            mymap.on('locationfound',function(e){
+                if (locationMarker){
+                    locationMarker.remove();
+                }
+                locationMarker = L.circle(e.latlng,{color: "red", radius: e.accuracy/2}).addTo(mymap);
+                locationMarker.on("click",function(){
+                    mymap.removeLayer(locationMarker); 
+                });
+                mymap.fitBounds(locationMarker.getBounds());
+                });
+            
+            mymap.on('locationerror',function(e){
+                alert(e.message);
+                });
+            
+            var ctlLocationbtn = L.easyButton('glyphicon-screenshot',function(){
                 mymap.locate();
-                mymap.on('locationfound',function(e){
-                         if (locationMarker){
-                             locationMarker.remove();
-                         }
-                         var locationMarker = L.circle(e.latlng,{color: "red", radius: e.accuracy/2}).addTo(mymap);
-                         locationMarker.on("click",function(){
-                            mymap.removeLayer(locationMarker); 
-                         });
-                         mymap.fitBounds(locationMarker.getBounds());
-                         });
-                mymap.on('locationerror',function(e){
-                    alert(e.message);
-                })
-            });
+                },'Show My Location').addTo(mymap);
+            
+            var sidebar = L.control.sidebar('sidebar').addTo(mymap);
+            
+            setTimeout(function(){
+                sidebar.show();
+                }, 500);
+            
+            var ctlSidebarbtn = L.easyButton('glyphicon-menu-hamburger',function(){
+                sidebar.toggle();
+                },'Toggle Brewery List').addTo(mymap);
             
         </script>
     </body>
