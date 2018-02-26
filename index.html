@@ -46,12 +46,10 @@
         </style>
     </head>
     <body>
-        <div id="container">
-            <div id="sidebar">
-                <h1 class="text-center">Calgary Craft Breweries</h1>
-            </div>
-            <div id="mapdiv"></div>
+        <div id="sidebar">
+            <h1 class="text-center">Calgary Craft Breweries</h1>
         </div>
+        <div id="mapdiv"></div>
         
         <script>
             var mapboxUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
@@ -61,6 +59,12 @@
             var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
             
             var geojson = 'data/breweries.geojson';
+            
+            function isSmallScreen(){
+                var area = window.screen.availWidth*window.screen.availHeight;
+                var isSmall=(area<307456)?true:false;
+                return isSmall;
+            };
             
             var geojsonLayer = new L.GeoJSON.AJAX(geojson, {pointToLayer: function(feature, latlng){
                 var but = "<button id='zoomTo"+feature.properties.Name.replace(/ /g, '');
@@ -73,9 +77,11 @@
                     marker.openPopup();
                     marker.unbindTooltip();
                 });
-                $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseenter(function(){
-                    marker.bindTooltip("<h5><strong>"+feature.properties.Name+"</strong></h5>").openTooltip();
-                });
+                if (isSmallScreen() == false){
+                    $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseenter(function(){
+                        marker.bindTooltip("<h5><strong>"+feature.properties.Name+"</strong></h5>").openTooltip();
+                    });
+                }
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseleave(function(){
                     marker.unbindTooltip();
                 });
