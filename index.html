@@ -4,17 +4,20 @@
         <meta charset="UTF-8">
         <title>Breweries</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+        <link href="https://use.fontawesome.com/releases/v5.0.7/css/all.css" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
         <link rel="stylesheet" href="src/plugins/L.Control.ZoomBar.css"/>
         <link rel="stylesheet" href="src/plugins/easy-button.css"/>
         <link rel="stylesheet" href="src/plugins/L.Control.Sidebar.css"/>
+        <link rel="stylesheet" href="src/plugins/leaflet.awesome-markers.css">
+        <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
         <script src="src/plugins/L.Control.ZoomBar.js"></script>
         <script src="src/plugins/easy-button.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="src/leaflet.ajax.min.js"></script>
         <script src="src/plugins/L.Control.Sidebar.js"></script>
+        <script src="src/plugins/leaflet.awesome-markers.js"></script>
         <style>
             html, body, #container {
                 height: 100%;
@@ -34,13 +37,19 @@
             }
             #sidebar {
                 background-color: beige;
-                overflow-y: auto;
+                overflow-y: auto;               
             }
-            .brewery {    
+            .brewery {
                 margin-bottom: 5px;
                 height: auto;
                 white-space: normal;
                 font-family: Tahoma, Verdana, Segoe, sans-serif;
+                background-color: rgb(255,204,0);
+                color: black;
+            }
+            .awesome-marker i {
+                font-size: 15px;
+                margin-top: 12px;
             }
 
         </style>
@@ -60,6 +69,13 @@
             
             var geojson = 'data/breweries.geojson';
             
+            var mugMarker = L.AwesomeMarkers.icon({
+                icon: 'beer',
+                markerColor: 'orange',
+                iconColor: 'rgba(255, 255, 255, 0.7)',
+                prefix: 'fa'
+            });
+            
             function isSmallScreen(){
                 var area = window.screen.availWidth*window.screen.availHeight;
                 var isSmall=(area<307456)?true:false;
@@ -68,7 +84,7 @@
             
             var geojsonLayer = new L.GeoJSON.AJAX(geojson, {pointToLayer: function(feature, latlng){
                 var but = "<button id='zoomTo"+feature.properties.Name.replace(/ /g, '');
-                but += "' class ='form-control btn btn-primary btn-lg brewery'>";
+                but += "' class ='form-control btn btn-warning btn-lg brewery'>";
                 but += feature.properties.Name+"</button>";
                 $("#sidebar").append(but);
                 $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
@@ -91,12 +107,17 @@
                 str += "</a>";
                 str += "<p class='text-center'>"+feature.properties.Address+"</p>";
                 var marker = new L.Marker(latlng,{
-                                title: feature.properties.Name,
-                                riseOnHover: true
-                                }).bindPopup(str);
+                    icon: mugMarker,
+                    title: feature.properties.Name,
+                    riseOnHover: true
+                    }).bindPopup(str);
+                marker.on('click', function(){
+                    var longoffset = latlng.lng - 0.001;
+                    mymap.panTo([latlng.lat, longoffset]);  
+                });
                 return marker;
                 }});
-            
+                       
             var mymap = L.map('mapdiv',{center:[51, -114], zoom:11, zoomControl:false});
             
             mymap.attributionControl.addAttribution(" Map Produced By: <a href='http://www.west5mapping.com' target='_blank'>West 5 Mapping Inc.</a> &copy;2017");
