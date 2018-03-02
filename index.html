@@ -51,7 +51,6 @@
                 font-size: 15px;
                 margin-top: 12px;
             }
-            
         </style>
     </head>
     <body>
@@ -82,30 +81,23 @@
                 return isSmall;
             };
             
-            var mugMarker = L.AwesomeMarkers.icon({
-                icon: 'beer',
-                markerColor: 'orange',
-                iconColor: 'rgba(255, 255, 255, 0.7)',
-                prefix: 'fa'
-            });
-            
             var geojsonLayer = new L.GeoJSON.AJAX(geojson, {pointToLayer: function(feature, latlng){
-                var but = "<button id='zoomTo"+feature.properties.Name.replace(/ /g, '');
+                var but = "<button id='zoomTo"+feature.properties.Name.replace(/ |'|&/g, '');
                 but += "' class ='form-control btn btn-warning btn-lg brewery'>";
                 but += feature.properties.Name+"</button>";
                 $("#sidebar").append(but);
-                $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).click(function(){
+                $("#zoomTo"+feature.properties.Name.replace(/ |'|&/g, '')).click(function(){
                     var longoffset = latlng.lng - 0.001;
                     mymap.setView([latlng.lat, longoffset], 17);
                     marker.openPopup();
                     marker.unbindTooltip();
                 });
                 if (isSmallScreen() == false){
-                    $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseenter(function(){
+                    $("#zoomTo"+feature.properties.Name.replace(/ |'|&/g, '')).mouseenter(function(){
                         marker.bindTooltip("<h5><strong>"+feature.properties.Name+"</strong></h5>").openTooltip();
                     });
                 }
-                $("#zoomTo"+feature.properties.Name.replace(/ /g, '')).mouseleave(function(){
+                $("#zoomTo"+feature.properties.Name.replace(/ |'|&/g, '')).mouseleave(function(){
                     marker.unbindTooltip();
                 });
                 var str = "<h3 class='text-center'><strong>"+feature.properties.Name+"</strong></h3>";
@@ -121,7 +113,6 @@
                 marker.on('click', function(){
                     var longoffset = latlng.lng - 0.001;
                     mymap.panTo([latlng.lat, longoffset]);  
-
                 });
                 return marker;
                 }});
