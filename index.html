@@ -9,15 +9,14 @@
         <link rel="stylesheet" href="src/plugins/L.Control.ZoomBar.css"/>
         <link rel="stylesheet" href="src/plugins/easy-button.css"/>
         <link rel="stylesheet" href="src/plugins/L.Control.Sidebar.css"/>
-        <link rel="stylesheet" href="src/plugins/leaflet.awesome-markers.css">
-        <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+        <link rel="stylesheet" href="src/plugins/MapkeyIcons.css"/>
         <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
         <script src="src/plugins/L.Control.ZoomBar.js"></script>
         <script src="src/plugins/easy-button.js"></script>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="src/leaflet.ajax.min.js"></script>
         <script src="src/plugins/L.Control.Sidebar.js"></script>
-        <script src="src/plugins/leaflet.awesome-markers.js"></script>
+        <script src="src/plugins/L.Icon.Mapkey.js"></script>
         <style>
             html, body, #container {
                 height: 100%;
@@ -44,13 +43,10 @@
                 height: auto;
                 white-space: normal;
                 font-family: Tahoma, Verdana, Segoe, sans-serif;
-                background-color: rgb(255,204,0);
+                background-color: rgb(247,213,136);
                 color: black;
             }
-            .awesome-marker i {
-                font-size: 15px;
-                margin-top: 12px;
-            }
+
         </style>
     </head>
     <body>
@@ -67,12 +63,13 @@
             var backgroundLayer = L.tileLayer(mapboxUrl, {id: 'mapbox.streets', attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>', accessToken: accessToken});
             
             var geojson = 'data/breweries.geojson';
-            
-            var mugMarker = L.AwesomeMarkers.icon({
-                icon: 'beer',
-                markerColor: 'orange',
-                iconColor: 'rgba(255, 255, 255, 0.7)',
-                prefix: 'fa'
+
+            var mugMarker = L.icon.mapkey({
+                icon: 'pub',
+                size: 36,
+                borderRadius: 12,
+                color: 'rgb(124,84,54)',
+                background: 'rgb(247,213,136)'
             });
             
             function isSmallScreen(){
@@ -114,10 +111,10 @@
                     var longoffset = latlng.lng - 0.001;
                     mymap.panTo([latlng.lat, longoffset]);  
                 });
-                return marker;
+                return marker;               
                 }});
                        
-            var mymap = L.map('mapdiv',{center:[51, -114], zoom:11, zoomControl:false});
+            var mymap = L.map('mapdiv',{center:[51.03, -114.05], zoom:11, zoomControl:false});
             
             mymap.attributionControl.addAttribution(" Map Produced By: <a href='http://www.west5mapping.com' target='_blank'>West 5 Mapping Inc.</a> &copy;2017");
             
@@ -126,11 +123,6 @@
             geojsonLayer.addTo(mymap);
             
             var zoom_bar = new L.Control.ZoomBar({position: 'topleft'}).addTo(mymap);
-            
-            mymap.on('mousemove',function(e){
-                var coords = "Latitude: "+e.latlng.lat.toFixed(5)+"    Longitude: "+e.latlng.lng.toFixed(5)+"    Zoom Level: "+mymap.getZoom();
-                $("#map_coords").html(coords);
-            });
             
             var locationMarker;
             
@@ -162,6 +154,7 @@
             var ctlSidebarbtn = L.easyButton('glyphicon-menu-hamburger',function(){
                 sidebar.toggle();
             },'Toggle Brewery List').addTo(mymap);
+            
             
         </script>
     </body>
